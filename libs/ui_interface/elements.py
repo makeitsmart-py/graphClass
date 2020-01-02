@@ -33,8 +33,12 @@ class NavigateButton(Button):
             elif issubclass(self._next_element, BaseElement):
                 next_element = self._next_element()
                 next_element = next_element._instantiate(self._get_page(), parent_container=self._get_page())
+            else:
+                raise RuntimeError("Unexpected next_element value")
         elif isinstance(self._next_element, BaseElement):
             next_element = self._next_element._instantiate(self._get_page(), parent_container=self._get_page())
+        else:
+            raise RuntimeError("Unexpected next_element value")
         next_element.wait_till_is_visible()
         return next_element
 
@@ -42,11 +46,11 @@ class NavigateButton(Button):
 class Input(BaseElement):
     value = None
 
-    def set_text(self, value):
+    def set(self, value):
         el = self._wait_element()
         el.send_keys(value)
 
-    def get_text(self):
+    def get(self):
         if self.value is not None:
             return self.value
 

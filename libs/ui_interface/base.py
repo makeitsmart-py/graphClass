@@ -238,6 +238,35 @@ class BaseContainer:
             element = getattr(element, '_parent_container', None)
         return '.'.join(full_name)
 
+    def submit(self):
+        submit = getattr(self, 'submit', None)
+        if submit is None:
+            return
+        submit.submit()
+        return
+
+    def enter(self):
+        return
+
+    def exit(self):
+        return
+
+    def set(self, data: dict):
+        self.enter()
+        errors = []
+        for name, value in data.items():
+            target_element = getattr(self, name, None)
+            if target_element is None or not isinstance(target_element, (BaseContainer, BaseElement)):
+                errors.append(f'{self._get_full_name()} Unknown attribute {name}')
+                continue
+            if not hasattr(target_element, 'set'):
+                errors.append(f'{self._get_full_name()} Attribute {name} is not settable')
+            result = target_element.set(value)
+            if result:
+                errors.append(result)
+        self.exit()
+        return errors
+
 
 class BaseContainerElement(BaseElement, BaseContainer):
 
