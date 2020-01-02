@@ -8,14 +8,14 @@ import time
 class VkTests(unittest.TestCase):
 
     def setUp(self):
-        self.driver = webdriver.Firefox()
+        self.driver = webdriver.Chrome()
 
     def test_some_vk(self):
 
         vk_login_page = LandingPage(self.driver)
         vk_login_page.go_to()
-        vk_login_page.username.set_text("+79131198241")
-        vk_login_page.password.set_text("gfhjkmfuck")
+        vk_login_page.username.set("+79131198241")
+        vk_login_page.password.set("gfhjkmfuck")
         vk_feed_page = vk_login_page.submit.click()
 
         vk_feed_page.leftmenu.my.click()
