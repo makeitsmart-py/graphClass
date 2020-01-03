@@ -55,7 +55,36 @@ class FwdReference:
         self.name = name
 
 
-class BaseElement:
+class CommonBaseClass:
+    def _get_full_name(self):
+        element = self
+        full_name = []
+        while element is not None:
+            name = getattr(element, '_name', None)
+            if not name:
+                name = element.__class__.__name__
+            full_name.insert(0, name)
+            element = getattr(element, '_parent_container', None)
+        return '.'.join(full_name)
+
+    def _wait_and_instantiate(self, next_element):
+        if isinstance(next_element, type):
+            if issubclass(next_element, BasePage):
+                next_element = next_element(self._get_page().driver)
+            elif issubclass(next_element, BaseElement):
+                next_element = next_element()
+                next_element = next_element._instantiate(self._get_page(), parent_container=self._get_page())
+            else:
+                raise RuntimeError(f"{self._get_full_name()} Unexpected next_element value")
+        elif isinstance(next_element, BaseElement):
+            next_element = next_element._instantiate(self._get_page(), parent_container=self._get_page())
+        else:
+            raise RuntimeError(f"{self._get_full_name()} Unexpected next_element value")
+        next_element.wait_till_is_visible()
+        return next_element
+
+
+class BaseElement(CommonBaseClass):
     _locator = None
     _name: str = None
     _parent_container: 'BaseContainer' = None
@@ -71,8 +100,9 @@ class BaseElement:
     def _wait_element(self, timeout=5):
         if self._locator is None:
             raise ValueError(f"Class '{self.__class__.__name__}' should have 'locator' attribute defined")
-        return WebDriverWait(self._page.driver, timeout).until(EC.presence_of_element_located((By.XPATH, self._get_full_xpath())),
-                                                               message=f"Can't find element {self._get_full_name()} by locator {self._get_full_xpath()}")
+        return WebDriverWait(self._page.driver, timeout).until(
+            EC.presence_of_element_located((By.XPATH, self._get_full_xpath())),
+            message=f"Can't find element {self._get_full_name()} by locator {self._get_full_xpath()}")
 
     def _wait_elements(self, timeout=5):
         if self._locator is None:
@@ -95,17 +125,6 @@ class BaseElement:
                 full_xpath.insert(0, locator)
             element = getattr(element, '_parent_container', None)
         return ''.join(full_xpath)
-
-    def _get_full_name(self):
-        element = self
-        full_name = []
-        while element is not None:
-            name = getattr(element, '_name', None)
-            if not name:
-                name = element.__class__.__name__
-            full_name.insert(0, name)
-            element = getattr(element, '_parent_container', None)
-        return '.'.join(full_name)
 
     def is_visible(self):
         return not self._is_not_visible()
@@ -144,7 +163,7 @@ class BaseElement:
                 raise ValueError("%s Unknown __init__ parameter - %s" % (self.__class__, n))
 
 
-class BaseContainer:
+class BaseContainer(CommonBaseClass):
     _elements = None
     _name: str = None
 
@@ -227,32 +246,21 @@ class BaseContainer:
             raise TimeoutError(f"{self.__class__} element {not_visible_element} is not visible")
         raise TimeoutError(f"{self.__class__} is not visible")
 
-    def _get_full_name(self):
-        element = self
-        full_name = []
-        while element is not None:
-            name = getattr(element, '_name', None)
-            if not name:
-                name = element.__class__.__name__
-            full_name.insert(0, name)
-            element = getattr(element, '_parent_container', None)
-        return '.'.join(full_name)
-
-    def submit(self):
+    def _submit(self):
         submit = getattr(self, 'submit', None)
         if submit is None:
             return
-        submit.submit()
+        submit.click()
         return
 
-    def enter(self):
+    def _enter(self):
         return
 
-    def exit(self):
+    def _exit(self):
         return
 
     def set(self, data: dict):
-        self.enter()
+        self._enter()
         errors = []
         for name, value in data.items():
             target_element = getattr(self, name, None)
@@ -264,7 +272,7 @@ class BaseContainer:
             result = target_element.set(value)
             if result:
                 errors.append(result)
-        self.exit()
+        self._submit()
         return errors
 
 

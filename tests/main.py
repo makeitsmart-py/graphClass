@@ -14,9 +14,12 @@ class VkTests(unittest.TestCase):
 
         vk_login_page = LandingPage(self.driver)
         vk_login_page.go_to()
-        vk_login_page.username.set("+79131198241")
-        vk_login_page.password.set("gfhjkmfuck")
-        vk_feed_page = vk_login_page.submit.click()
+        # vk_login_page.username.set("+79131198241")
+        # vk_login_page.password.set("gfhjkmfuck")
+        vk_feed_page = vk_login_page.set({
+            'username': "+79131198241",
+            'password': "gfhjkmfuck"})
+        #vk_feed_page = vk_login_page.submit.click()
 
         vk_feed_page.leftmenu.my.click()
         # vk_feed_page.write_post.set_text('vasya pidor')

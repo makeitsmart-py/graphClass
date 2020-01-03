@@ -115,3 +115,10 @@ class LandingPage(BaseVkPage):
     password = LandingPageUserPassword
     submit = LandingPageLoginButton
 
+    def _submit(self) -> FeedPage:
+        super()._submit()
+        return self._wait_and_instantiate(FeedPage)
+
+    def set(self, data) -> FeedPage:
+        results = super().set(data)
+        return self._wait_and_instantiate(FeedPage)

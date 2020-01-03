@@ -27,20 +27,7 @@ class NavigateButton(Button):
 
     def click(self):
         super().click()
-        if isinstance(self._next_element, type):
-            if issubclass(self._next_element, BasePage):
-                next_element = self._next_element(self._get_page().driver)
-            elif issubclass(self._next_element, BaseElement):
-                next_element = self._next_element()
-                next_element = next_element._instantiate(self._get_page(), parent_container=self._get_page())
-            else:
-                raise RuntimeError("Unexpected next_element value")
-        elif isinstance(self._next_element, BaseElement):
-            next_element = self._next_element._instantiate(self._get_page(), parent_container=self._get_page())
-        else:
-            raise RuntimeError("Unexpected next_element value")
-        next_element.wait_till_is_visible()
-        return next_element
+        return self._wait_and_instantiate(self._next_element)
 
 
 class Input(BaseElement):
