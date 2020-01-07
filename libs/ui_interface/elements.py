@@ -1,6 +1,4 @@
-from libs.ui_interface.base import BasePage
 from .base import BaseContainerElement, BaseElement, BasePage, __DEFAULT__
-from.action_chain import ac
 from selenium.webdriver.common.keys import Keys
 import typing
 
@@ -12,7 +10,6 @@ class Button(BaseElement):
         el.click()
 
 
-# scope chain
 class NavigateButton(Button):
     next: typing.Union[typing.Type[BasePage], typing.Type[BaseElement]] = None
 

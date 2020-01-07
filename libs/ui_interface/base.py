@@ -4,15 +4,14 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-
-# import typing
+from .forward_reference import FwdReference as FwdReferenceBase
 
 
 class __DEFAULT__:
     pass
 
 
-class FwdReference:
+class FwdReference(FwdReferenceBase):
     target_class_name = None
     args = None
     kwargs = None
@@ -20,40 +19,11 @@ class FwdReference:
     owner = None
     _unresolved_references = {}
 
-    def __init__(self, class_name: str, *args, **kwargs):
-        bucket = self._unresolved_references.get(class_name, None)
-        if bucket is None:
-            bucket = self._unresolved_references[class_name] = []
-        bucket.append(self)
-        self.target_class_name = class_name
-        self.args = args
-        self.kwargs = kwargs
-
-    @classmethod
-    def resolve(cls, target_class):
-        bucket = cls._unresolved_references.get(target_class.__name__, __DEFAULT__)
-        if bucket is __DEFAULT__:
-            return
-        for reference in bucket:
-            #instance = target_class(*reference.args, **reference.kwargs)
-            if issubclass(reference.owner, BaseContainer):
-                reference.owner._elements[reference.name] = target_class
-            else:
-                setattr(reference.owner, reference.name, target_class)
-        del cls._unresolved_references[target_class.__name__]
-
-    def clone(self, new_target_class):
-        instance = self.__class__(class_name=self.target_class_name, *self.args, **self.kwargs)
-        instance.__set_name__(new_target_class, self.name)
-        return instance
-
-    def __get__(self, instance, owner):
-        raise RuntimeError(
-             f"{self.owner}.{self.name}: Can't resolve forward reference for {self.target_class_name}")
-
-    def __set_name__(self, owner, name):
-        self.owner = owner
-        self.name = name
+    def resolve(self, target_class):
+        if issubclass(self.owner, BaseContainer):
+            self.owner._elements[self.name] = target_class
+        else:
+            setattr(self.owner, self.name, target_class)
 
 
 class CommonBaseClass:
@@ -92,7 +62,7 @@ class BaseElement(CommonBaseClass):
     _page: 'BasePage' = None
 
     def __init_subclass__(cls, **kwargs):
-        FwdReference.resolve(cls)
+        FwdReference.resolve_all_references_to_class(cls)
         super().__init_subclass__(**kwargs)
 
     def _get_page(self):
@@ -169,7 +139,7 @@ class BaseContainer(CommonBaseClass):
     _name: str = None
 
     def __init_subclass__(cls, **kwargs):
-        FwdReference.resolve(cls)
+        FwdReference.resolve_all_references_to_class(cls)
         cls._class_get_all_elements()
         super().__init_subclass__(**kwargs)
 
