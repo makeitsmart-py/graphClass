@@ -18,22 +18,3 @@ class ActionChain:
         self.result = self.instance(*args, **kwargs)
         self.instance = self.original_instance
         return self
-
-
-class ActionChainDecorator:
-    ac_class = ActionChain
-
-    def __init__(self, fn):
-        self.fn = fn
-
-    def __call__(self, *args, **kwargs):
-        return self.fn(*args, **kwargs)
-
-    def __get__(self, instance, owner):
-        return self.ac_class(instance=instance, fn=self.fn)
-
-
-def ac(fn):
-    return ActionChainDecorator(fn)
-
-
