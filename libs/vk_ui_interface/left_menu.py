@@ -5,47 +5,47 @@ from selenium.webdriver.common.by import By
 
 class HomeButton(NavigateButton):
     _locator = "//a[starts-with(@href,'/id569100170')]"
-    _next_element = FwdReference('MainPage')
+    next = FwdReference('MainPage')
     
 
 class NewsButton(NavigateButton):
     _locator = "//a[starts-with(@href,'/feed')]"
-    _next_element = FwdReference('NewsPage')
+    next = FwdReference('NewsPage')
 
 
 class MessagesButton(NavigateButton):
     _locator = "//a[starts-with(@href,'/im')]"
-    _next_element = FwdReference('MessagesPage')
+    next = FwdReference('MessagesPage')
     
     
 class FriendsButton(NavigateButton):
     _locator = "//a[starts-with(@href,'/friends')]"
-    _next_element = FwdReference('FriendsPage')
+    next = FwdReference('FriendsPage')
 
 
 class GroupsButton(NavigateButton):
     _locator = "//a[starts-with(@href,'/groups')]"
-    _next_element = FwdReference('GroupsPage')
+    next = FwdReference('GroupsPage')
     
 
 class PhotosButton(NavigateButton):
     _locator = "//a[starts-with(@href,'/albums')]"
-    _next_element = FwdReference('PhotosPage')
+    next = FwdReference('PhotosPage')
     
 
 class MusicButton(NavigateButton):
     _locator = "//a[starts-with(@href,'/audios')]"
-    _next_element = FwdReference('MusicPage')
+    next = FwdReference('MusicPage')
 
 
 class VideosButton(NavigateButton):
     _locator = "//a[starts-with(@href,'/video')]"
-    _next_element = FwdReference('VideosPage')
+    next = FwdReference('VideosPage')
     
 
 class MarksButton(NavigateButton):
     _locator = "//a[starts-with(@href,'/bookmarks')]"
-    _next_element = FwdReference('MarksPage')
+    next = FwdReference('MarksPage')
     
     
 class LeftMenu(BaseContainerElement):

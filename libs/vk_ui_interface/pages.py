@@ -64,10 +64,8 @@ class MarksPage(BaseVkAuthorisedPage):
 # Кнопка логина
 class LandingPageLoginButton(NavigateButton):
     _locator = "//*[@id='index_login_button']"
-    _next_element = FeedPage
+    next = FeedPage
 
-    def click(self) -> FeedPage:
-        return super().click()
 
 
 # Страницы управления профилем из верхнего меню
@@ -114,11 +112,5 @@ class LandingPage(BaseVkPage):
     username = LandingPageUserName
     password = LandingPageUserPassword
     submit = LandingPageLoginButton
+    next = FeedPage
 
-    def _submit(self) -> FeedPage:
-        super()._submit()
-        return self._wait_and_instantiate(FeedPage)
-
-    def set(self, data) -> FeedPage:
-        results = super().set(data)
-        return self._wait_and_instantiate(FeedPage)

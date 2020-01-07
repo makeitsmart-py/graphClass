@@ -9,7 +9,7 @@ class SearchArea(Input):
 
 class HomeButton(NavigateButton):
     _locator = "//a[starts-with(@href,'/feed')]"
-    _next_element = FwdReference('MainPage')
+    next = FwdReference('MainPage')
 
 
 class Notification(BaseContainerElement):
@@ -18,27 +18,27 @@ class Notification(BaseContainerElement):
 
 class UserProfileHomeButton(NavigateButton):
     _locator = "//a[starts-with(@href,'/id569100170')]"
-    _next_element = FwdReference('MainPage')
+    next = FwdReference('MainPage')
 
 
 class UserProfileEditButton(NavigateButton):
     _locator = "//a[starts-with(@href,'/edit')]"
-    _next_element = FwdReference('UserProfileEditPage')
+    next = FwdReference('UserProfileEditPage')
 
 
 class UserProfileSettingsButton(NavigateButton):
     _locator = "//a[starts-with(@href,'/settings')]"
-    _next_element = FwdReference('UserProfileSettingsPage')
+    next = FwdReference('UserProfileSettingsPage')
 
 
 class UserProfileHelpButton(NavigateButton):
     _locator = "//a[starts-with(@href,'/support?act=home')]"
-    _next_element = FwdReference('UserProfileHelpPage')
+    next = FwdReference('UserProfileHelpPage')
 
 
 class UserProfileLogoutButton(NavigateButton):
     _locator = "//*[@id='top_logout_link']"
-    _next_element = FwdReference('UserProfileLogoutPage')
+    next = FwdReference('UserProfileLogoutPage')
 
 
 class UserProfile(BaseContainerElement):
@@ -51,7 +51,7 @@ class UserProfile(BaseContainerElement):
 
 class UserProfileButton(NavigateButton):
     _locator = "//*[@id='top_profile_link']"
-    _next_element = UserProfile
+    next = UserProfile
 
     def click(self) -> UserProfile:
         return super().click()

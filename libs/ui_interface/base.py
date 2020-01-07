@@ -1,7 +1,8 @@
+import time
+from .action_chain import ActionChain
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import time
 from selenium.webdriver.common.by import By
 
 # import typing
@@ -211,7 +212,10 @@ class BaseContainer(CommonBaseClass):
         if element is __DEFAULT__:
             raise AttributeError(f"{self.__class__} has no attribute {item}")
         if isinstance(element, type):
-            instance = element(page=self._get_page(), parent_container=self, name=item)
+            if issubclass(element, BasePage):
+                instance = element(driver=self._get_page().driver)
+            else:
+                instance = element(page=self._get_page(), parent_container=self, name=item)
             setattr(self, item, instance)
             return instance
         instance = element._instantiate(self._get_page(), parent_container=self, name=item)
@@ -253,14 +257,16 @@ class BaseContainer(CommonBaseClass):
         submit.click()
         return
 
-    def _enter(self):
+    def __enter__(self):
+        return self
+
+    def __exit__(self):
         return
 
-    def _exit(self):
-        return
-
-    def set(self, data: dict):
-        self._enter()
+    def set(self, data: dict, options: dict = None):
+        self.__enter__()
+        if options is None:
+            options = {}
         errors = []
         for name, value in data.items():
             target_element = getattr(self, name, None)
@@ -269,10 +275,11 @@ class BaseContainer(CommonBaseClass):
                 continue
             if not hasattr(target_element, 'set'):
                 errors.append(f'{self._get_full_name()} Attribute {name} is not settable')
-            result = target_element.set(value)
+            result = target_element.set(value, options)
             if result:
                 errors.append(result)
-        self._submit()
+        if options.get('submit', False):
+            self._submit()
         return errors
 
 
@@ -289,9 +296,12 @@ class BasePage(BaseContainer):
     base_url = None
     page_path = None
     title = None
+    driver = None
+    ac = None
 
     def __init__(self, driver):
         self.driver = driver
+        self.ac = ActionChain(instance=self)
 
     def _get_title(self):
         return self.driver.title
@@ -315,12 +325,3 @@ class BasePage(BaseContainer):
             if self.title != self._get_title():
                 return False
         return super()._is_not_visible()
-
-    # def _find_element(self, locator, time=10):
-    #     return WebDriverWait(self.driver, time).until(EC.presence_of_element_located(locator),
-    #                                                   message=f"Can't find element by locator {locator}")
-    #
-    # def _find_elements(self, locator, time=10):
-    #     return WebDriverWait(self.driver, time).until(EC.presence_of_all_elements_located(locator),
-    #                                                   message=f"Can't find elements by locator {locator}")
-
